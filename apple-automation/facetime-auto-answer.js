@@ -7,6 +7,7 @@
 }
 
 function checkFaceTime(){
+    const FACETIME_CALLER_WHITELIST = ["+86 138 0013 8000", "test@icloud.com"]
 
     let seApp = Application("System Events")
     /**@type string[] */
