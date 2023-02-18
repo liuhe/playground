@@ -38,8 +38,8 @@ function checkFaceTime(){
             delay(3)
             /**@type number[] */
             let position = Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].position(), true).split(",").map(p=>parseInt(p))
-            if(position[1] > 30 && seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({"name": "FullScreen"}).length){
-                seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({"name": "FullScreen"})[0].click()
+            if(position[1] > 30 && Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"}).name(), true)){
+                seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"})[0].perform()
                 log("Window maximized.")
                 break
             }
