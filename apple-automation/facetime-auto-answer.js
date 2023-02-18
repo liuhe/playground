@@ -42,6 +42,8 @@ function checkFaceTime(){
                 seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"})[0].perform()
                 log("Window maximized.")
                 break
+            }else{
+                log("Waiting for window to maximize...")
             }
         }
     }catch(ex){
