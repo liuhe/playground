@@ -7,25 +7,6 @@
 }
 
 function checkFaceTime(){
-    const FACETIME_CALLER_WHITELIST = ["+86 138 0013 8000", "test@icloud.com"]
-    /*
-
-    变量：是否有接听
-    if 通知中心 存在FaceTime关键字 并且 存在Accept按钮 并且来源是特定号码 {
-    点击Accept按钮
-    记录 是否有接听 = 是
-    }
-
-    if 有接听 {
-    循环检查（每秒一次，最多10次）{
-        if 存在通信窗口，并且没有最大化 {
-        将它最大化
-        }
-    }
-    }
-
-    */
-
 
     let seApp = Application("System Events")
     /**@type string[] */
