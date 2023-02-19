@@ -10,28 +10,37 @@ function checkFaceTime(){
     const FACETIME_CALLER_WHITELIST = ["+86 138 0013 8000", "test@icloud.com"]
 
     let seApp = Application("System Events")
-    /**@type string[] */
-	let ncTexts = Automation.getDisplayString(seApp.processes.whose({name:"NotificationCenter"}).windows[0].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
-    // 返回的字符串里面前后可能会有奇怪字符，处理一下
-    ncTexts = ncTexts.map(t=>t.replaceAll(/[^\x21-\x7E]/ig, ""))
 
-    if(!ncTexts.find(t=>t.indexOf("FaceTime")>=0) || !ncTexts.find(t=>t.indexOf("Accept")>=0)){
-        log(`FaceTime Accept window not found: ${ncTexts}`)
-        return
-    }
+    let winIdx = makeIndexRangeArray(seApp.processes.whose({name:"NotificationCenter"}).windows.length).find(winIdx=>{
+        /**@type string[] */
+        let ncTexts = Automation.getDisplayString(seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
+        // 返回的字符串里面前后可能会有奇怪字符，处理一下
+        ncTexts = ncTexts.map(t=>t.replaceAll(/[^\x21-\x7E]/ig, ""))
 
-    if(!(FACETIME_CALLER_WHITELIST.find(c=>ncTexts.find(t=>{
-        if(t.indexOf(c)>=0){
-            log(`${t} is calling...`)
-            return true
+        if(!ncTexts.find(t=>t.indexOf("FaceTime")>=0) || !ncTexts.find(t=>t.indexOf("Accept")>=0)){
+            log(`ncWin#${winIdx} not FaceTime Accept: ${ncTexts}`)
+            return
         }
-    })))){
-        log(`FaceTime caller not in whitelist(${FACETIME_CALLER_WHITELIST}): ${ncTexts}`)
+
+        if(!(FACETIME_CALLER_WHITELIST.find(c=>ncTexts.find(t=>{
+            if(t.indexOf(c)>=0){
+                log(`ncWin#${winIdx} ${t} is calling...`)
+                return true
+            }
+        })))){
+            log(`ncWin#${winIdx} FaceTime caller not in whitelist(${FACETIME_CALLER_WHITELIST}): ${ncTexts}`)
+            return
+        }
+
+        return true
+    })
+    if(!(winIdx >= 0)){
+        log("no NotificationCenter window.")
         return
     }
 
     try{
-        seApp.processes.whose({name:"NotificationCenter"}).windows[0].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
+        seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
         log("Accepted.")
 
         for(let i = 0; i < 5; ++i){
@@ -69,4 +78,13 @@ function toSecondString(date){
 
 function toMinuteString(date){
     return toSecondString(date).substring(0, 16)
+}
+
+/**@return number[] */
+function makeIndexRangeArray(len){
+    let arr = []
+    for(let i = 0; i < len; ++i){
+        arr.push(i)
+    }
+    return arr
 }
