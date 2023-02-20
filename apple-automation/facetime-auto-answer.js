@@ -10,10 +10,16 @@ function checkFaceTime(){
     const FACETIME_CALLER_WHITELIST = ["+86 138 0013 8000", "test@icloud.com"]
 
     let seApp = Application("System Events")
+    let ncWins = seApp.processes.whose({name:"NotificationCenter"}).windows
 
-    let winIdx = makeIndexRangeArray(seApp.processes.whose({name:"NotificationCenter"}).windows.length).find(winIdx=>{
+    let ncWinCount = ncWins.length
+    if(ncWinCount === 0){
+        log("no NotificationCenter window.")
+        return
+    }
+    let winIdx = makeIndexRangeArray(ncWinCount).find(winIdx=>{
         /**@type string[] */
-        let ncTexts = Automation.getDisplayString(seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
+        let ncTexts = Automation.getDisplayString(ncWins[winIdx].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
         // 返回的字符串里面前后可能会有奇怪字符，处理一下
         ncTexts = ncTexts.map(t=>t.replaceAll(/[^\x21-\x7E]/ig, ""))
 
@@ -35,12 +41,11 @@ function checkFaceTime(){
         return true
     })
     if(!(winIdx >= 0)){
-        log("no NotificationCenter window.")
         return
     }
 
     try{
-        seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
+        ncWins[winIdx].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
         log("Accepted.")
 
         for(let i = 0; i < 5; ++i){
