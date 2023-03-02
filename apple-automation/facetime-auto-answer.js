@@ -10,16 +10,15 @@ function checkFaceTime(){
     const FACETIME_CALLER_WHITELIST = ["+86 138 0013 8000", "test@icloud.com"]
 
     let seApp = Application("System Events")
-    let ncWins = seApp.processes.whose({name:"NotificationCenter"}).windows
 
-    let ncWinCount = ncWins.length
+    let ncWinCount = seApp.processes.whose({name:"NotificationCenter"}).windows.length
     if(ncWinCount === 0){
         log("no NotificationCenter window.")
         return
     }
     let winIdx = makeIndexRangeArray(ncWinCount).find(winIdx=>{
         /**@type string[] */
-        let ncTexts = Automation.getDisplayString(ncWins[winIdx].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
+        let ncTexts = Automation.getDisplayString(seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
         // 返回的字符串里面前后可能会有奇怪字符，处理一下
         ncTexts = ncTexts.map(t=>t.replaceAll(/[^\x21-\x7E]/ig, ""))
 
@@ -45,14 +44,15 @@ function checkFaceTime(){
     }
 
     try{
-        ncWins[winIdx].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
+        seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
         log("Accepted.")
 
         for(let i = 0; i < 5; ++i){
             delay(3)
             /**@type number[] */
-            let position = Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].position(), true).split(",").map(p=>parseInt(p))
-            if(position[1] > 30 && Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"}).name(), true)){
+            // let position = Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].position(), true).split(",").map(p=>parseInt(p))
+            // if position[1] > 30 && 
+            if(Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"}).name(), true)){
                 seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"})[0].click()
                 log("Window maximized.")
                 break
