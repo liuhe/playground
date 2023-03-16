@@ -1,0 +1,19 @@
+yarn add --dev parcel
+yarn add --dev @types/react @types/react-dom
+yarn add react react-dom
+
+index.html
+index.tsx
+app.tsx
+package.json
+    "source": "src/index.html",
+    "scripts":
+        "start": "parcel"
+
+### yarn start: good!!! (parcel + react + typescript)
+
+abcde.ts
+    import abcde from 'bundle-text:./abcde.txt'
+
+parcel自动引入dev dependency: @parcel/transformer-inline-string
+### ok!! 但VSC会有警告（不认识bundle-text:）
