@@ -17,3 +17,27 @@ abcde.ts
 
 parcel自动引入dev dependency: @parcel/transformer-inline-string
 ### ok!! 但VSC会有警告（不认识bundle-text:）
+
+tsconfig.json
+{
+    "compilerOptions": {
+        "esModuleInterop": true
+    }
+}
+### 去掉了一个小警告
+
+abcde.test.ts
+    随便import点东西（非bundle-text:）
+!!! npx jest会报：Cannot use import statement outside a module
+
+yarn add --dev jest typescript
+yarn add --dev ts-jest @types/jest
+yarn ts-jest config:init
+package.json
+    "test": "jest"
+### yarn test ok了！
+
+
+abcde.test.ts import含bundle-text:的模块
+
+!!! yarn test报错：Cannot find module 'bundle-text:./abcde.txt' or its corresponding type declarations.
