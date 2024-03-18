@@ -15,10 +15,13 @@ function checkFaceTime(){
     if(ncWinCount === 0){
         log("no NotificationCenter window.")
         return
+    // }else{
+    //     log(`ncWin count: ${ncWinCount}`)
+    //     dumpUIElementStructure(seApp.processes.whose({name:"NotificationCenter"}).windows[0].uiElements[0], "#")
     }
     let winIdx = makeIndexRangeArray(ncWinCount).find(winIdx=>{
         /**@type string[] */
-        let ncTexts = Automation.getDisplayString(seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.uiElements.name(), true).split(",")
+        let ncTexts = cleanText(seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements[0].groups[0].uiElements.name()).split(",")
         // 返回的字符串里面前后可能会有奇怪字符，处理一下
         ncTexts = ncTexts.map(t=>t.replaceAll(/[^\x21-\x7E]/ig, ""))
 
@@ -44,7 +47,7 @@ function checkFaceTime(){
     }
 
     try{
-        seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements.groups.buttons.whose({name:"Accept"})[0].click()
+        seApp.processes.whose({name:"NotificationCenter"}).windows[winIdx].scrollAreas[0].uiElements[0].groups[0].buttons.whose({name:"Accept"})[0].click()
         log("Accepted.")
 
         for(let i = 0; i < 5; ++i){
@@ -52,7 +55,7 @@ function checkFaceTime(){
             /**@type number[] */
             // let position = Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].position(), true).split(",").map(p=>parseInt(p))
             // if position[1] > 30 && 
-            if(Automation.getDisplayString(seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"}).name(), true)){
+            if(cleanText(seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"}).actions.whose({name:"AXPress"}).name())){
                 seApp.processes.whose({name:"FaceTime"}).windows[0].buttons.whose({subrole:"AXFullScreenButton"})[0].click()
                 log("Window maximized.")
                 break
@@ -92,4 +95,22 @@ function makeIndexRangeArray(len){
         arr.push(i)
     }
     return arr
+}
+
+function dumpUIElementStructure(/**@type UIElement*/elm, /**@type string*/prefix){
+    let desc = cleanText(elm.description())
+    let name = cleanText(elm.name())
+    if(desc === "text" || desc === "button"){
+        log(`${prefix} ${desc} => ${name}`)
+    }else{
+        log(`${prefix} ${desc} ${name} => ${elm.uiElements.length}`)
+        for(let i = 0; i < elm.uiElements.length; ++i){
+            dumpUIElementStructure(elm.uiElements[i], prefix + "#")
+        }
+    }
+}
+
+function cleanText(textSpecifier){
+    let displayStr = Automation.getDisplayString(textSpecifier, true).replaceAll(/[^\x21-\x7E]/ig, "")
+    return displayStr
 }
